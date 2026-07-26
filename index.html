@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Letters, Kept For You</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,500&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=EB+Garamond:ital@0;1&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --black: #0b0708;
+    --ink: #150c0d;
+    --burgundy-deep: #340c17;
+    --burgundy: #5c1626;
+    --burgundy-light: #7d2436;
+    --brown: #3a2417;
+    --brown-light: #63402a;
+    --cream: #f3e6d8;
+    --cream-dim: #d8c3ac;
+    --gold: #c9a15a;
+    --gold-soft: #e6cd9b;
+    --gold-dim: #8a6f3f;
+  }
+
+  *{ box-sizing: border-box; }
+
+  html, body{
+    margin:0;
+    padding:0;
+  }
+
+  body{
+    background:
+      radial-gradient(ellipse at 20% -10%, rgba(92,22,38,0.55), transparent 55%),
+      radial-gradient(ellipse at 85% 10%, rgba(58,36,23,0.5), transparent 50%),
+      var(--black);
+    color: var(--cream);
+    font-family: 'Cormorant Garamond', serif;
+    min-height: 100vh;
+  }
+
+  .wrap{
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: 64px 28px 90px;
+  }
+
+  header{
+    text-align:center;
+    margin-bottom: 56px;
+  }
+
+  header .eyebrow{
+    font-family: 'EB Garamond', serif;
+    font-style: italic;
+    letter-spacing: 0.35em;
+    text-transform: uppercase;
+    font-size: 12px;
+    color: var(--gold-dim);
+    margin: 0 0 14px;
+  }
+
+  header h1{
+    font-family: 'Playfair Display', serif;
+    font-weight: 600;
+    font-size: clamp(34px, 5.5vw, 56px);
+    margin: 0 0 14px;
+    color: var(--cream);
+    letter-spacing: 0.01em;
+  }
+
+  header .rule{
+    width: 84px;
+    height: 1px;
+    margin: 18px auto;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  }
+
+  header p{
+    font-size: 19px;
+    color: var(--cream-dim);
+    max-width: 460px;
+    margin: 0 auto;
+    line-height: 1.6;
+  }
+
+  .calendar{
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 20px;
+  }
+
+  @media (max-width: 860px){
+    .calendar{ grid-template-columns: repeat(4, 1fr); }
+  }
+  @media (max-width: 620px){
+    .calendar{ grid-template-columns: repeat(3, 1fr); gap: 14px; }
+    .wrap{ padding: 44px 16px 70px; }
+  }
+  @media (max-width: 420px){
+    .calendar{ grid-template-columns: repeat(2, 1fr); }
+  }
+
+  .tile{
+    position: relative;
+    aspect-ratio: 3 / 4;
+    border-radius: 6px;
+    overflow: hidden;
+    cursor: pointer;
+    border: 1px solid rgba(201,161,90,0.25);
+    background-size: cover;
+    background-position: center;
+    background-color: var(--brown);
+    isolation: isolate;
+    opacity: 0;
+    transform: translateY(10px);
+    animation: riseIn 0.6s ease forwards;
+    transition: border-color .25s ease, transform .25s ease;
+  }
+
+  .tile:hover{
+    border-color: var(--gold);
+    transform: translateY(-4px);
+  }
+
+  .tile:focus-visible{
+    outline: 2px solid var(--gold);
+    outline-offset: 3px;
+  }
+
+  .tile::before{
+    content:'';
+    position:absolute;
+    inset:0;
+    background:
+      linear-gradient(180deg, rgba(11,7,8,0.05) 0%, rgba(11,7,8,0.15) 55%, rgba(11,7,8,0.85) 100%),
+      linear-gradient(0deg, rgba(11,7,8,0.35), rgba(11,7,8,0.35));
+    z-index: 1;
+    transition: background .25s ease;
+  }
+
+  .tile:hover::before{
+    background:
+      linear-gradient(180deg, rgba(11,7,8,0.1) 0%, rgba(11,7,8,0.2) 55%, rgba(11,7,8,0.9) 100%),
+      linear-gradient(0deg, rgba(11,7,8,0.15), rgba(11,7,8,0.15));
+  }
+
+  .tile-title{
+    position:absolute;
+    left:12px;
+    right:12px;
+    bottom:12px;
+    z-index: 2;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 14px;
+    line-height: 1.3;
+    color: var(--cream-dim);
+    font-style: italic;
+  }
+
+  .seal{
+    position:absolute;
+    top:10px;
+    right:10px;
+    z-index: 3;
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, var(--burgundy-light), var(--burgundy-deep) 70%);
+    border: 1px solid rgba(201,161,90,0.55);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.5), inset 0 0 0 1px rgba(0,0,0,0.3);
+  }
+
+  .seal span{
+    font-family: 'Playfair Display', serif;
+    font-weight: 700;
+    font-size: 17px;
+    color: var(--gold-soft);
+  }
+
+  @keyframes riseIn{
+    to{ opacity:1; transform: translateY(0); }
+  }
+
+  footer{
+    text-align:center;
+    margin-top: 60px;
+    font-family: 'EB Garamond', serif;
+    font-style: italic;
+    font-size: 13px;
+    color: var(--gold-dim);
+    letter-spacing: 0.08em;
+  }
+
+  .overlay{
+    position: fixed;
+    inset: 0;
+    background: rgba(6,4,4,0.82);
+    backdrop-filter: blur(3px);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding: 24px;
+    z-index: 50;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .25s ease;
+  }
+
+  .overlay.open{
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .letter-card{
+    position: relative;
+    width: 100%;
+    max-width: 560px;
+    max-height: 82vh;
+    overflow-y: auto;
+    background:
+      linear-gradient(180deg, rgba(201,161,90,0.06), transparent 12%),
+      linear-gradient(155deg, var(--brown) 0%, var(--ink) 55%, var(--burgundy-deep) 100%);
+    border: 1px solid rgba(201,161,90,0.4);
+    border-radius: 4px;
+    padding: 44px 40px 40px;
+    box-shadow: 0 30px 70px rgba(0,0,0,0.6);
+    transform: scale(0.94) translateY(12px);
+    transition: transform .3s ease;
+  }
+
+  .overlay.open .letter-card{
+    transform: scale(1) translateY(0);
+  }
+
+  .letter-card::before{
+    content:'';
+    position:absolute;
+    inset: 10px;
+    border: 1px solid rgba(201,161,90,0.22);
+    border-radius: 2px;
+    pointer-events:none;
+  }
+
+  .close-btn{
+    position:absolute;
+    top:14px;
+    right:16px;
+    background:none;
+    border:none;
+    color: var(--gold-dim);
+    font-family: 'Playfair Display', serif;
+    font-size: 22px;
+    cursor:pointer;
+    line-height:1;
+    padding: 6px 10px;
+    transition: color .2s ease;
+  }
+
+  .close-btn:hover{ color: var(--gold-soft); }
+
+  .letter-seal{
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, var(--burgundy-light), var(--burgundy-deep) 70%);
+    border: 1px solid rgba(201,161,90,0.6);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    margin: 0 auto 20px;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.5);
+  }
+
+  .letter-seal span{
+    font-family: 'Playfair Display', serif;
+    font-weight: 700;
+    font-size: 18px;
+    color: var(--gold-soft);
+  }
+
+  .letter-title{
+    font-family: 'Playfair Display', serif;
+    font-weight: 600;
+    font-style: italic;
+    text-align:center;
+    font-size: 26px;
+    color: var(--cream);
+    margin: 0 0 6px;
+  }
+
+  .letter-date{
+    text-align:center;
+    font-family: 'EB Garamond', serif;
+    font-style: italic;
+    font-size: 13px;
+    color: var(--gold-dim);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin: 0 0 26px;
+  }
+
+  .letter-rule{
+    width: 60px;
+    height: 1px;
+    margin: 0 auto 26px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  }
+
+  .letter-body{
+    font-size: 19px;
+    line-height: 1.75;
+    color: var(--cream-dim);
+    white-space: pre-line;
+  }
+
+  .letter-body::first-letter{
+    font-family: 'Playfair Display', serif;
+    font-size: 46px;
+    font-weight: 700;
+    color: var(--gold-soft);
+    float: left;
+    line-height: 0.8;
+    margin: 8px 8px 0 0;
+  }
+
+  @media (max-width: 500px){
+    .letter-card{ padding: 36px 22px 30px; }
+    .letter-body{ font-size: 17px; }
+    .letter-title{ font-size: 22px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <p class="eyebrow">Twenty-five days &middot; Twenty-five letters</p>
+    <h1>Letters, Kept For You</h1>
+    <div class="rule"></div>
+    <p>Every date holds a letter, written and waiting. Click one open, whenever you need it.</p>
+  </header>
+
+  <div class="calendar" id="calendar"></div>
+
+  <footer>place a photo behind any date &mdash; the seal always stays in view</footer>
+</div>
+
+<div class="overlay" id="overlay">
+  <div class="letter-card" id="letterCard">
+    <button class="close-btn" id="closeBtn" aria-label="Close letter">&times;</button>
+    <div class="letter-seal"><span id="modalSealNum"></span></div>
+    <p class="letter-title" id="modalTitle"></p>
+    <p class="letter-date" id="modalDate"></p>
+    <div class="letter-rule"></div>
+    <div class="letter-body" id="modalBody"></div>
+  </div>
+</div>
+
+<script>
+  var TILE_IMAGES = {
+
+  };
+
+  var letters = [
+    { title:"You Don't Have to Be Strong Today",
+      body:"Hi puchku,\nToday is your day. A holy day for your body na.\nIk it hurts shooo much. So today puchku, let yourself feel it all\nCome home to me, sit by side, in a hug, kiss slowly as we entwine\nRest. Cry. Stay quiet. I want you to feel at home puchku.\nI fell in love with your heart, not your strength. So if you're tired, lean on me, even if it's only through these pages.\nI'll hold whatever you cannot carry today.\nI will be by your side, forever gazing at you\nLike that kid who fell in love with the stars\n~godu" },
+    { title:"If I Could Hold Your Pain for a While",
+      body:"If I could, I'd borrow every ache hiding in your chest, even if only for a day.\nI'd let you breathe without that weight, laugh without forcing it, and sleep without your thoughts chasing you.\nFor ik, u deserve the peace and love they used to write about in manuscripts\nSo puchku,\nAlways remember you're never meant to suffer alone.\nWhatever hurts you has to go through me too, because your heart has quietly become my home. And I will protect this home with everything I have" },
+    { title:"Everything I Love About You Has Nothing to Do With Perfection",
+      body:"Hi sweetu,\nI want you to know that I love every single part of you. The ambitious queen, the cutie darling, the dazzling diva, the funny baddie, the caring mommy. Every depth of you is a delight to me. So I want you to remember, that if u think anytime soon,\nthat u have to prove urself worthy of something, u don't, you are the star to my eyes and I admire you\nLike the moth admires his profound light." },
+    { title:"Come Home to Me, Even If Only Through These Words",
+      body:"Hi cutie,\nI want you to know that,\nWhenever life feels loud, come back to these words. Read them slowly, as if they're my hands spanning every part of you. Here, you don't have to explain yourself or pretend you're okay. This little letter is your quiet place, where you're loved exactly as you are. Until I can be beside you, let these sentences become my voice, reminding you that you have someone who chooses you, every single day. In every single dream that he has dreamt of you" },
+    { title:"The Warmest Hug I Couldn't Give You Today",
+      body:"Hi sweetu,\nIf I were there, I'd wrap you in the longest hug and say nothing at all. I'd just let you rest until your heartbeat remembers the grace that you embody. Since distance won't let me, imagine these words around your shoulders instead. Close your eyes for a moment and pretend I'm there, smiling because you're here. Some hugs are made with arms. This one is made with every word I've written for you. Every dream I have dreamt of you, every memory I have visited of you" },
+    { title:"The Woman You're Becoming",
+      body:"My love,\nWatching you grow is one of my favorite things.\nYou're becoming someone even stronger, kinder, and more beautiful, not because you're changing, but because you're discovering more of who you've always been.\nThe love you have always embodied. I hope you never rush this journey. Bloom slowly. Learn fearlessly. Be proud of every little step. Wherever life takes you, I hope you always remember that the woman you're becoming is already someone I'm endlessly proud to love. Is someone who deserves the world" },
+    { title:"The Adventures Waiting for Us",
+      body:"Remember sunshine,\nThere are so many places we haven't seen yet, meals we haven't shared, sunsets we haven't chased, and memories that don't exist until we create them together. I can't wait for wrong turns that become funny stories, spontaneous plans, long train rides, and moments we'll remember years later. My world is already beautiful because of you, but I think it will feel even bigger and brighter when I get to discover these new realms of happiness, with the one true love of my life." },
+    { title:"Every Dream of Yours Feels Worth Believing In",
+      body:"Hi madam,\nPuchku. If you ever start thinking that your dreams are very far away,\nif u are not where you should be,\nremember, ok, that I believe in them because I believe in you. Your determination has always been stronger than your doubts, even when you couldn't see it yourself.\nYour soul has never lacked its divinity. And whenever you get tired, remember there will always be someone cheering for you, celebrating every step long before the finish line appears. Come to me, and we will together gaze at the infinite potential u embody" },
+    { title:"If We Keep Walking Together",
+      body:"Hi gudu mudu,\nI don't need a perfect life; I just hope we never stop choosing each other. I just want us to keep looking into each other's eyes and find a way through the uncertain days, celebrate the joyful ones, and grow through everything in between. We'll make mistakes, learn, laugh, and begin again whenever we have to. As long as your hand keeps finding mine, I think we'll discover our truest selves, the ones we have always thrived to be." },
+    { title:"The Light You Don't Even Realize You Carry",
+      body:"My love,\nUk u have this aurora around you. It's pure energy, wrapped in a shroud of empathy. And to be in its vicinity feels ephemeral. I feel u have a lot more to you than u have ever seen, and that's why bbg.\nLet your feelings out, feel the bliss that life has mirrored back at you. Be the sun as you are,\nEven when u don't believe it, I will.\nBecause I have seen your beauty, and your capacity to bring it out into the world to make it a better place." },
+    { title:"Twenty Little Things I Love About You",
+      body:"1. Your smile.\n2. The way your eyes brighten when you're excited.\n3. Your laugh that makes everyone else smile too.\n4. Your kind heart.\n5. How deeply you care for people.\n6. Your random thoughts.\n7. The way you remember little things.\n8. Your excited voice.\n9. Your determination.\n10. Your honesty.\n11. The way your mind knows its empathy.\n12. Your curiosity.\n13. Your confidence when you know you've researched it.\n14. The little expressions you make without realizing.\n15. Your patience.\n16. The dreams you carry.\n17. The warmth in your hugs.\n18. Your beautiful mind.\n19. The way you make ordinary moments feel special.\n20. Simply being with you." },
+    { title:"The Little Habits That Make Me Smile",
+      body:"My love,\nYou probably don't even notice the little things you do. But every time I look at you, I feel bliss from the way you get excited over something small, the way you pause before telling a story, the way you laugh at your own jokes, or quietly care for people without expecting anything back. They're tiny moments that the world might overlook, but I never do. They're the pieces of you that make my heart smile the most.\nIt's funny how you rarely notice these,\ncause they make you shine, love.\nYou look like an angel in a storm of husks." },
+    { title:"What Your Laughter Does to My World",
+      body:"Hi sunshine,\nEvery time you laugh, it's as if the whole day becomes a little lighter. It reminds me that happiness doesn't have to be loud or extraordinary, it can simply be your voice filling a quiet moment. Your laughter has rescued me from the darkest of places without even knowing it. So please, laugh often, laugh louder, laugh freely, laugh whenever you can. Because somewhere, whether beside you or far away, there's someone whose favorite sound in the world has always been yours." },
+    { title:"The Most Beautiful Version of You",
+      body:"Hi sweetu,\nThe most beautiful version of you isn't when everything is perfect. It's when you're completely yourself, laughing without holding back, talking about something you love, forgetting the world for a while. That's the version I wish you could see through my eyes. It's effortless, genuine, and impossible not to adore. I hope life gives you more reasons to be that version of yourself every single day.\nI hope that we go so far as to make that version the resting version of you" },
+    { title:"The Softness You Carry Quietly",
+      body:"Hi, gudu mudu,\nYou have a quiet way of making places feel warmer. A conversation with you feels like one with a priest, cleansing my interiors from an agony I have forever carried.\nAnd yet every time I remember that these sins were directed towards you, a part of me goes silent and abandons my body.\nUk I want you to know that I can't reverse the hurt that I have caused, but there would come a time when u would not think of them and I would fill your world with a silent laughter, like the one u have. That you can again look at the present and smile and again be vulnerable to me, and only me. And it would all make sense again." },
+    { title:"If I Were Sitting Beside You Right Now",
+      body:"My love,\nIf I were sitting beside you right now, I wouldn't rush to fill the silence. I'd simply take your hand, rest my head on your shoulder, and let you know that you're not alone. We'd talk about nothing, laugh at something silly, or just watch the world pass by. I would hold you, caress you, and we would feel the intensity of your emotions, together.\nI want you to know that if I were sitting beside you, I would be looking into your eyes and holding that small self that lies so deep within. And reassuring her that her presence has changed the world for the best" },
+    { title:"Our Favorite Memories Together",
+      body:"Hi love,\nWhenever I miss you, my heart starts replaying us.\nThe conversations on the staircase, standing and kissing or talking while sitting on the bare floor.\nThe laughs that made our cheeks hurt, the little moments when I pulled u closer above the workshop area, or the kiss to my cheek in the library, or the shy cuddling in the library with us trying so hard to hide from the camera. Funny how I remember annoying u in the lab, or when I dream about us just going all in, in our dreams.\nI still root for quiet spaces like the top of Campus 15, I want to take u to all sorts of places and feed u like I do, I want to take u to the food court daily and feed u because I love when u are actually full and in my hands.\nI remember the blush I carried when I bought flowers for you, or the silent yearning I had when we had those five day holidays.\nThis vacation has made me cherish what I have with you, and I want to remember more, I want to make a mosaic of you in my heart with these pieces etched in memory.\nI love you puchku, may we keep making memories till the end of time." },
+    { title:"The Places That Remind Me of You",
+      body:"Hi love,\nIt's strange how often I find you in ordinary places.\nA quiet cafe makes me wonder what you'd order and what our conversations would be about. A beautiful sunset makes me wish you were standing beside me, so I could hold ur waist with our cheeks aligned and watch the sun go down.\nA song, a familiar road, a cool evening breeze,\nsomehow they all whisper your name.\nIn every empty building I discover, I think about our bodies feeling each other's warmth. In every cat I see, I remember ur meow and ur desire for a cat.\nEven in every flower, I search for a rose, just big enough to fit ur hair.\nI look forward to our time together bb, and I hope you look forward to it the same." },
+    { title:"I Wonder What You're Doing Right Now",
+      body:"Hi love,\nSometimes I pause in the middle of my day and wonder what you're doing at that exact moment.\nAre you smiling at something? Are you lost in thought? Did you eat? Are you secretly wishing I were there too? Are u bathing?\nI like imagining our days unfolding side by side, even when we're miles apart. It makes the distance feel a little smaller, knowing we're under the same sky, living different moments yet connected. I love to think about our days entwining once in a while, cause damn, it would be so blissful if u also did the same, and poof,\nwe just meet, telepathically. A dream I have always had." },
+    { title:"Until We Meet Again",
+      body:"Hi love,\nEvery goodbye we say is really a promise in disguise. A promise that we'll meet again, laugh again, hold hands again, and make up for all the time distance tried to steal. So if you're missing me today, remember this: every sunrise brings us one day closer to our next hello.\nEvery second passing is just bringing us closer, and until the clock has ticked past this wait, keep a little piece of me in your heart, just as I carry all of you in mine, wherever I go.\nAnd hold out for those long kisses and tight hugs as soon as I come back." },
+    { title:"Read This When Your Mind Becomes Too Loud",
+      body:"My love,\nI know your thoughts can become louder than the truth. When you feel like a \"burden\" that you never were and never will be,\nwhen the darkness closes in,\nwhen other voices try to flood in, when that happens, don't believe everything your anxious mind tells you. It speaks from fear, not from reality, because in reality u don't belong in any of those made up realities.\nInstead, I want you to know that you are loved, that you are safe, and you don't have to solve your whole life tonight, that these heavy thoughts would be gone soon. Let tomorrow carry tomorrow's worries. For now, just breathe, be gentle with yourself, and let these words remind you that you're never facing the darkness alone.\nI am here with you, Ananya is with you, ur other friends are with u, it isn't dark because you exist in it, and whatever the phase may be, remember we all love you from the bottom of our hearts." },
+    { title:"You Are Not Behind in Life",
+      body:"Hi cutie,\nIt can feel like everyone else is moving faster, achieving more, figuring life out while you're still searching. But life was never meant to be a race, isn't it.\nYou are growing at your own pace, learning lessons meant only for your journey. Don't measure your chapter three against someone else's chapter ten. And moreover, how can u measure yourself against them, u are after all an angel. One day you'll look back and realize you weren't behind, you were simply becoming the person you were always meant to be, while they had their own struggles they were fixing or running away from. But all the while u grew into this sweet, pretty princess, whom I am so proud of, and idk about the world, but you are at a level some will never get to, and I am so happy that it's you of all people who holds such power within." },
+    { title:"Even the Strongest Hearts Need to Rest",
+      body:"Hi, u absolute baddie,\nYou spend so much time trying to be strong that sometimes you forget you're allowed to be tired. Lesson after lesson, thought after thought, you keep working like Sisyphus, but love, we also have to rest, na. It's how hearts gather the courage to keep loving, hoping, and trying again. So please don't feel guilty for slowing down today. Close your eyes. Put the weight down for a little while. The world can wait, and why wouldn't it, for a sweet princess like u. The people who truly love you, including me, will never think less of you for choosing peace over pressure. Because even though a queen has to keep her kingdom, she is after all born to be her soul, filled with passion, rest, and love." },
+    { title:"You Have Survived Every Bad Day So Far",
+      body:"Hi love,\nThink about every difficult day you once believed would break you.\nThink about every turmoil the world tried to bestow upon u, and guess what, you are somehow still here. Maybe not unchanged, but stronger, wiser, and softer in ways you don't always notice. This hard moment isn't the end of your story either.\nPerhaps a new plot in its reckoning.\nYou have already proven, again and again, that you can make it through storms. That you are one soul who has what it takes.\nI believe this one will pass too. Until then, let hope borrow my voice if yours feels too quiet. Let my soul unite with yours.\nLet us look through this storm together, in solace." },
+    { title:"Borrow My Calm Until You Find Yours Again",
+      body:"Hi love,\nIf your heart feels restless tonight, let me lend you mine for a while.\nImagine me sitting beside you, quietly holding your hand, reminding you that nothing has to be solved this very moment.\nWe'll take life one breath, one hour, one sunrise at a time. You don't have to carry every fear by yourself. Until your own peace finds its way back, you're welcome to borrow mine. I'll always have enough for both of us.\nSo you can sit in this silence, let the past wash your shore and fade away, and again,\nlet the sunrise along with a gentle tide strike our feet.\nAnd back in bed we are, one breath at a time." }
+  ];
+
+  var calendar = document.getElementById('calendar');
+  var overlay = document.getElementById('overlay');
+  var letterCard = document.getElementById('letterCard');
+  var closeBtn = document.getElementById('closeBtn');
+  var modalTitle = document.getElementById('modalTitle');
+  var modalDate = document.getElementById('modalDate');
+  var modalBody = document.getElementById('modalBody');
+  var modalSealNum = document.getElementById('modalSealNum');
+
+  letters.forEach(function(letter, i){
+    var num = i + 1;
+    var tile = document.createElement('div');
+    tile.className = 'tile';
+    tile.tabIndex = 0;
+    tile.setAttribute('role', 'button');
+    tile.setAttribute('aria-label', 'Open letter for day ' + num + ': ' + letter.title);
+    tile.style.animationDelay = (i * 0.04) + 's';
+
+    if (TILE_IMAGES[num]) {
+      tile.style.backgroundImage = "url('" + TILE_IMAGES[num] + "')";
+    }
+
+    var titleEl = document.createElement('div');
+    titleEl.className = 'tile-title';
+    titleEl.textContent = letter.title;
+
+    var seal = document.createElement('div');
+    seal.className = 'seal';
+    seal.innerHTML = '<span>' + num + '</span>';
+
+    tile.appendChild(titleEl);
+    tile.appendChild(seal);
+    calendar.appendChild(tile);
+
+    function open(){
+      modalSealNum.textContent = num;
+      modalTitle.textContent = letter.title;
+      modalDate.textContent = 'Day ' + num;
+      modalBody.textContent = letter.body;
+      overlay.classList.add('open');
+      letterCard.scrollTop = 0;
+      closeBtn.focus();
+    }
+
+    tile.addEventListener('click', open);
+    tile.addEventListener('keydown', function(e){
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(); }
+    });
+  });
+
+  function close(){
+    overlay.classList.remove('open');
+  }
+
+  closeBtn.addEventListener('click', close);
+  overlay.addEventListener('click', function(e){
+    if (e.target === overlay) close();
+  });
+  document.addEventListener('keydown', function(e){
+    if (e.key === 'Escape') close();
+  });
+</script>
+</body>
+</html>
